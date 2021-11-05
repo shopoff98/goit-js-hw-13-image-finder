@@ -19,5 +19,9 @@ ul {
 }
 
 .is-hidden {
-  display: none;
+  opacity: 0;
+}
+
+.visiable {
+  opacity: 1;
 }

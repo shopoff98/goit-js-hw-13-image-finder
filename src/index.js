@@ -9,7 +9,9 @@ const BASE_URL = `https://pixabay.com/api/?image_type=photo&orientation=horizont
 const refsLoadMoreButton = document.querySelector('.load-more-btn ');
 const refsSearchForm = document.querySelector('.search-form');
 const refsUlGallery = document.querySelector('.gallery');
+const refsSubmitBtn = document.querySelector('.btn');
 
+// refsSubmitBtn.disabled = true;
 
 
 
@@ -25,39 +27,53 @@ refsLoadMoreButton.addEventListener('click', onLoadMore);
 
 
 
-async function onSearch(e) {
+function onSearch(e) {
+  e.preventDefault();
+  galleryService.searchQuery = e.currentTarget.elements.query.value;
+
+ if (galleryService.searchQuery === '' || galleryService.searchQuery === ' ') {
+    return
+  }
+ else {
+   
+   galleryService.resetPage();
+   clearGallery();
+   galleryService.fetchPictures().then(createGalleryList);
+   disabledBtn(galleryService.searchQuery);
+}
 
   
-    e.preventDefault();
-   galleryService.searchQuery = e.currentTarget.elements.query.value;
-    galleryService.resetPage();
-    clearGallery();
-  galleryService.fetchPictures().then(createGalleryList);
-   galleryService.fetchPictures().then(data => {if (data.total < 13) {
-    refsLoadMoreButton.classList.toggle('is-hidden');
-  }});
-    
+
 }
 
 
 
 
 function createGalleryList(data) {
-refsLoadMoreButton.classList.remove('is-hidden')
-    refsUlGallery.insertAdjacentHTML('beforeend', galleryTempl(data));
+  if (data.total < 13 || data.hits.length < 12) {
+   refsLoadMoreButton.classList.remove('visiable')
+    refsLoadMoreButton.classList.add('is-hidden');
+  }
+  else {
+    refsLoadMoreButton.classList.remove('is-hidden');
+    refsLoadMoreButton.classList.add('visiable');
+    
+  }
+  refsUlGallery.insertAdjacentHTML('beforeend', galleryTempl(data));
 
 }
 
 
- function onLoadMore() {
-   galleryService.fetchPictures().then(createGalleryList);
+function onLoadMore() {
+  galleryService.fetchPictures().then(createGalleryList);
   onScroll();
-  
+
 
 }
 
-function clearGallery(){
+function clearGallery() {
   refsUlGallery.innerHTML = '';
+  refsLoadMoreButton.classList.remove('visiable')
   refsLoadMoreButton.classList.add('is-hidden')
 }
 
@@ -69,7 +85,17 @@ function onScroll() {
       behavior: 'smooth',
       block: 'end',
     })
-  },500
+  }, 500
   );
 }
 
+// function disabledBtn(query) {
+//   if (query === '' || query === ' ') {
+//     return refsSubmitBtn.disabled = true;
+//   }
+//   else {
+//     return refsSubmitBtn.disabled = false
+//   }
+// }
+
+// обработать ошибку например пишешь русскими буквами. кнопка disabled.
